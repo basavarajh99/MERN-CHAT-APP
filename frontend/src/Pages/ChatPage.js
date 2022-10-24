@@ -11,7 +11,7 @@ const ChatPage = () => {
         // console.log(data); //logs all the chat data
     }
 
-    //whenever the component is rendered the functio will be called
+    //whenever the component is rendered the function will be called
     useEffect(() => {
         fetchChats();
     }, [])
