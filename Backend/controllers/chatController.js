@@ -117,4 +117,64 @@ const createGroupChat = asyncHandler(async (req, res) => {
     }
 })
 
-module.exports = { accessChat, fetchChats, createGroupChat }
+const renameGroup = asyncHandler(async (req, res) => {
+    //we take the chat id and the name to be updated 
+    const { chatId, chatName } = req.body;
+
+    //first parameter: search key, second parameter: the field to be updated and third: returning updated chat
+    const updatedChat = await Chat.findByIdAndUpdate(chatId, { chatName }, { new: true })
+        .populate("users", "-password")
+        .populate("groupAdmin", "-password");
+
+    if (!updatedChat) {
+        res.status(404);
+        return new Error("Chat not found");
+    } else {
+        res.json(updatedChat);
+    }
+})
+
+const addToGroup = asyncHandler(async (req, res) => {
+    //we need chat id of the group for which the user is to be added and the userid of the user to be added
+    const { chatId, userId } = req.body;
+
+    if (!chatId || !userId) {
+        res.status(400);
+        return new Error("ChatId and userId are not found in request body");
+    }
+
+    const added = await Chat.findByIdAndUpdate(chatId, { $push: { users: userId } }, { new: true })
+        .populate("users", "-password")
+        .populate("groupAdmin", "-password");
+
+    if (!added) {
+        res.status(404);
+        throw new Error("Adding to group failed");
+    } else {
+        res.json(added);
+    }
+
+})
+
+const removeFromGroup = asyncHandler(async (req, res) => {
+    //we need chat id of the group from which the user is to be removed and the userid of the user to be removed
+    const { chatId, userId } = req.body;
+
+    if (!chatId || !userId) {
+        res.status(400);
+        return new Error("ChatId and userId are not found in request body");
+    }
+
+    const removed = await Chat.findByIdAndUpdate(chatId, { $pull: { users: userId } }, { new: true })
+        .populate("users", "-password")
+        .populate("groupAdmin", "-password");
+
+    if (!removed) {
+        res.status(404);
+        throw new Error("Adding to group failed");
+    } else {
+        res.json(removed);
+    }
+})
+
+module.exports = { accessChat, fetchChats, createGroupChat, renameGroup, addToGroup, removeFromGroup }
