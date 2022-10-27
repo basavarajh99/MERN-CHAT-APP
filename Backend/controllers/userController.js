@@ -61,4 +61,34 @@ const authUser = asyncHandler(async (req, res) => {
     }
 })
 
-module.exports = { registerUser, authUser };
+//we can send data to the backend using POST request which will be stored in req.body or we can user queries in URL like the
+//following URL.
+
+// /api/user?search=value
+
+const searchUsers = asyncHandler(async (req, res) => {
+    //use of $or operation from mongoDB to check for atleast one expression (in our case name or email) 
+    //to be satisfied in the array of expressions  
+    const keyword = req.query.search ? {
+        $or: [
+            //$regex: Provides regular expression capabilities for pattern matching strings in queries
+            //$options: case sensitive or other flags
+            { name: { $regex: req.query.search, $options: "i" } },
+            { email: { $regex: req.query.search, $options: "i" } }
+        ]
+    } : {};
+    //console.log(keyword);
+
+    //query the ketword in db
+
+    //we want to find all the users that are part of the serach query except the one who is searching 
+    //so use $ne(not equal) parameter from mongoDB to satisfy that condition
+    //the current user can be retrieved using "req.user._id"
+    console.log(req.user._id);
+    const users = await User.find(keyword).find({ _id: { $ne: req.user._id } });
+    //.find({ _id: { $ne: req.user._id } }); //we need user to be logged in for this to work and provide the JWT
+    //console.log(users);
+    res.send(users);
+})
+
+module.exports = { registerUser, authUser, searchUsers };

@@ -3,6 +3,7 @@ const express = require("express");
 const dotenv = require("dotenv");
 const connectDB = require("./config/db");
 const userRoutes = require('./routes/userRoutes');
+const chatRoutes = require('./routes/chatRoutes');
 const { notFound, errorHandler } = require('./middleware/errorMiddleware');
 
 dotenv.config();
@@ -37,6 +38,7 @@ app.get("/", (req, res) => {
 //users end-points
 
 app.use('/api/user', userRoutes);
+app.use('/api/chat', chatRoutes);
 
 //error handling functions incase of failed to login or notfound
 app.use(notFound)

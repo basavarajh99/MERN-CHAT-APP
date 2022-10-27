@@ -53,4 +53,68 @@ const accessChat = asyncHandler(async (req, res) => {
     }
 })
 
-module.exports = { accessChat }
+const fetchChats = asyncHandler(async (req, res) => {
+
+    //just check which user is logged in and return his chats
+    try {
+        //without poplating array it return only the id of end to end users
+        Chat.find({ users: { $elemMatch: { $eq: req.user._id } } }) //.then(result => res.send(result))
+            .populate("users", "-password") //populating users
+            .populate("groupAdmin", "-password") //populating whether group admins
+            .populate("latestMessage") //populating latest message
+            .sort({ updatedAt: -1 }) //sorting from new to old
+            .then(async (result) => { //populating receiver 
+                result = await User.populate(result, {
+                    path: "latestMessage.sender", //latestMessage inside chatModel is referrancing to messageModel which has sender, so populate the sender with name pic and email
+                    select: "name pic email" //things that will be sent
+                });
+
+                res.status(200).send(result);
+            });
+    } catch (error) {
+        res.status(400);
+        throw new Error(error);
+    }
+
+
+})
+
+
+const createGroupChat = asyncHandler(async (req, res) => {
+    //we take bunch of users and groupname
+    if (!req.body.users || !req.body.name) {
+        return res.status(400).send({ message: "Please enter users and group name." });
+    }
+
+    //We send data as a string from frontend to backend and in the backend we need to parse it
+    var users = JSON.parse(req.body.users);
+
+    //more than two users are required for group chat
+    if (users.length < 2) {
+        return res.status(400).send("Add more than 2 users to a group");
+    }
+
+    //add current logged in user to the group
+    users.push(req.user);
+
+    try {
+        const groupChat = await Chat.create({
+            chatName: req.body.name,
+            users: users,
+            isGroupChat: true,
+            groupAdmin: req.user
+        });
+
+        //find the group chat formed in the db and send it to user
+        const formedGroupChat = await Chat.findOne({ _id: groupChat._id })
+            .populate("users", "-password")
+            .populate("groupAdmin", "-password");
+
+        res.status(200).json(formedGroupChat);
+    } catch (error) {
+        res.status(400);
+        return new Error(error);
+    }
+})
+
+module.exports = { accessChat, fetchChats, createGroupChat }
