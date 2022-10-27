@@ -1,6 +1,8 @@
+import React, { useState } from 'react';
+import { useNavigate } from "react-router-dom";
 import { Button, FormControl, FormLabel, Input, InputGroup, InputRightElement, VStack } from '@chakra-ui/react'
-import React, { useState } from 'react'
 import { useToast } from '@chakra-ui/react'
+import axios from 'axios';
 
 const Signup = () => {
     const [name, setName] = useState();
@@ -11,6 +13,7 @@ const Signup = () => {
     const [pic, setPic] = useState();
     const [loading, setLoading] = useState();
     const toast = useToast();
+    const navigate = useNavigate();
 
     const postDetails = (pics) => {
         setLoading(true);
@@ -56,7 +59,73 @@ const Signup = () => {
         }
     }
 
-    const handleSubmit = () => { }
+    const handleSubmit = async () => {
+        setLoading(true);
+
+        //if form fill up is incomplete
+        if (!name || !email || !password || !confirmPassword) {
+            toast({
+                title: "Please fill all the feilds",
+                status: "warning",
+                duration: 5000,
+                isClosable: true,
+                position: "bottom"
+            });
+            setLoading(false);
+            return;
+        }
+
+        //if password !== confirmPassword
+        if (password !== confirmPassword) {
+            toast({
+                title: "Password and Confirm Password do not match!",
+                status: "warning",
+                duration: 5000,
+                isClosable: true,
+                position: "bottom"
+            });
+            return;
+        }
+
+        console.log(name, email, password, pic);
+        //if everything is fine then send the data to db
+        try {
+            // const config = {
+            //     headers: {
+            //         "Content-type": "application/json",
+            //     },
+            // };
+            //sending form data to signup url along with the headers 
+            //console.log(axios.post("/api/user", { name, email, password, pic }));
+            const { data } = await axios.post("/api/user",
+                { name, email, password, pic }); //config passed as a paramter to post method
+            console.log(data);
+            toast({
+                title: "Registration Successfull!",
+                status: "success",
+                duration: 5000,
+                isClosable: true,
+                position: "bottom"
+            });
+
+            localStorage.setItem('userInfo', JSON.stringify(data));
+
+            setLoading(false);
+
+            navigate("/chats");
+
+        } catch (error) {
+            toast({
+                title: "Error Occured!",
+                description: error,
+                status: "error",
+                duration: 5000,
+                isClosable: true,
+                position: "bottom"
+            });
+            setLoading(false);
+        }
+    };
 
     return (
         <VStack spacing='5px'>
@@ -80,7 +149,7 @@ const Signup = () => {
                     <Input
                         type={show ? "text" : "password"}
                         placeholder='Enter Your password'
-                        onChange={(e) => setName(e.target.value)}
+                        onChange={(e) => setPassword(e.target.value)}
                     />
                     <InputRightElement width={"4.5rem"} >
                         <Button h={"1.75rem"} size="sm" onClick={() => setShow(!show)} >
