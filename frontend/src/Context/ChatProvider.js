@@ -10,6 +10,7 @@ const ChatProvider = ({ children }) => {
     const [user, setUser] = useState(); //this will be passed into chatcontext.provider and will be available everywher throughout the app
     const [selectedChat, setSelectedChat] = useState();
     const [chats, setChats] = useState([]);
+    const [fetchAgain, setFetchAgain] = useState(false)
 
     const navigate = useNavigate();
 
@@ -29,7 +30,7 @@ const ChatProvider = ({ children }) => {
 
 
     return (
-        <ChatContext.Provider value={{ user, setUser, selectedChat, setSelectedChat, chats, setChats }}>
+        <ChatContext.Provider value={{ user, setUser, selectedChat, setSelectedChat, chats, setChats, fetchAgain, setFetchAgain }}>
             {children}
         </ChatContext.Provider>
     )

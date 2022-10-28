@@ -5,10 +5,11 @@ import React, { useEffect, useState } from 'react'
 import { getSender } from '../config/ChatLogics';
 import { ChatState } from '../Context/ChatProvider';
 import ChatLoading from './ChatLoading';
+import GroupChatModel from './miscellaneous/GroupChatModel';
 
 const MyChats = () => {
-    const [loggedUser, setLoggedUser] = useState();
-    const { user, selectedChat, setSelectedChat, chats, setChats } = ChatState();
+    const [loggedUser, setLoggedUser] = useState("");
+    const { user, selectedChat, setSelectedChat, chats, setChats, fetchAgain } = ChatState();
     const toast = useToast();
 
     //in this page we will get all the chats from "/api/chats"
@@ -40,7 +41,7 @@ const MyChats = () => {
     useEffect(() => {
         setLoggedUser(JSON.parse(localStorage.getItem("userInfo")));
         fetchChats();
-    }, [])
+    }, [fetchAgain])
 
 
     return (
@@ -65,14 +66,15 @@ const MyChats = () => {
                 alignItems="center"
             >
                 My Chats
-
-                <Button
-                    display={"flex"}
-                    fontSize={{ base: "17px", md: "10px", lg: "17px" }}
-                    rightIcon={<AddIcon />}
-                >
-                    New Group Chat
-                </Button>
+                <GroupChatModel>
+                    <Button
+                        display={"flex"}
+                        fontSize={{ base: "17px", md: "10px", lg: "17px" }}
+                        rightIcon={<AddIcon />}
+                    >
+                        New Group Chat
+                    </Button>
+                </GroupChatModel>
             </Box>
             <Box
                 display={"flex"}
