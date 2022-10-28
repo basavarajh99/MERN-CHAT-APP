@@ -20,7 +20,7 @@ const userModel = mongoose.Schema({
 
     picture: {
         type: String,
-        default: "https://pixabay.com/images/id-973460/"
+        default: "https://cdn4.iconfinder.com/data/icons/small-n-flat/24/user-512.png"
     },
 },
     {

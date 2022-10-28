@@ -5,7 +5,7 @@ const generateToken = require('../config/generateToken');
 //wrap the controller function in asyncHandler to handle errors automatically
 
 const registerUser = asyncHandler(async (req, res) => {
-    const { name, email, password, pic } = req.body;
+    const { name, email, password, picture } = req.body;
 
     if (!name || !email || !password) { //pic is optional
         res.status(400);
@@ -22,7 +22,7 @@ const registerUser = asyncHandler(async (req, res) => {
     }
 
     //creating new user
-    const user = await User.create({ name, email, password, pic });
+    const user = await User.create({ name, email, password, picture });
 
     //If user creation is successfull, send a JWT token
     if (user) {
@@ -30,7 +30,7 @@ const registerUser = asyncHandler(async (req, res) => {
             _id: user._id,
             name: user.name,
             email: user.email,
-            pic: user.pic,
+            picture: user.picture,
             token: generateToken(user._id)
         });
     } else { //user creation failed
@@ -52,7 +52,7 @@ const authUser = asyncHandler(async (req, res) => {
             _id: userExists._id,
             name: userExists.name,
             email: userExists.email,
-            pic: userExists.pic,
+            picture: userExists.picture,
             token: generateToken(userExists._id)
         });
     } else { //user authorization failed
