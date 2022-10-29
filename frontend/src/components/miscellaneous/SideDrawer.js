@@ -7,11 +7,9 @@ import { useNavigate } from 'react-router-dom';
 import {
     Drawer,
     DrawerBody,
-    DrawerFooter,
     DrawerHeader,
     DrawerOverlay,
-    DrawerContent,
-    DrawerCloseButton,
+    DrawerContent
 } from '@chakra-ui/react';
 
 import axios from 'axios';

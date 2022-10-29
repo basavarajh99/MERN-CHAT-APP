@@ -7,7 +7,7 @@ import axios from 'axios';
 import UserListItem from '../UserAvatar/UserListItem';
 
 
-const UpdateGroupChatModel = () => {
+const UpdateGroupChatModel = ({ fetchMessages }) => {
     const [groupChatName, setGroupChatName] = useState("");
     const [search, setSearch] = useState("");
     const [searchResults, setSearchResults] = useState([]); //results from api fetch
@@ -47,6 +47,7 @@ const UpdateGroupChatModel = () => {
             //if the user removed himself then he should not see the chat so, setselectedchat to empty
             usr._id === user._id ? setSelectedChat() : setSelectedChat(data);
             setFetchAgain(!fetchAgain);
+            fetchMessages();
             setLoading(false);
 
         } catch (error) {
