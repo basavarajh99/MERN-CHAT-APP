@@ -1,5 +1,6 @@
 const express = require("express");
 // const chats = require("./Data/data");
+const cors = require('cors');
 const dotenv = require("dotenv");
 const connectDB = require("./config/db");
 const userRoutes = require('./routes/userRoutes');
@@ -48,4 +49,59 @@ app.use(errorHandler)
 
 const PORT = process.env.PORT || 5000;
 
-app.listen(5000, console.log(`Server listening to PORT number ${PORT}`));
+const server = app.listen(5000, console.log(`Server listening to PORT number ${PORT}`));
+
+
+//pingTimeout is the amount of time socket remailns active before going off to save bandwidth
+const io = require('socket.io')(server, {
+    pingTimeout: 60000,
+    cors: {
+        origin: "http://localhost:3000"
+    }
+});
+
+io.on("connection", (socket) => {
+    console.log("connected to socket.io!!!");
+
+    //everytime users open the app, they should be connected to their own socket
+    //when we recieve data from the frontend we create a socket and join the room
+    socket.on('setup', (userData) => {
+        //creating the new room with id of user data and that room will be exclusive that particular user only
+        socket.join(userData._id);
+        //console.log(userData._id);
+        socket.emit('connected');
+    });
+
+    //joining the chat
+    //when we click on a chat this should create a new room with both the if they both are present, else one who joins will be 
+    //added and other will joined when he becomes active
+    socket.on('join chat', (room) => {
+        socket.join(room);
+        console.log('User Joined Room: ' + room);
+    });
+
+    //socket for typing
+    socket.on('typing', (room) => socket.in(room).emit('typing'));
+    socket.on('stop typing', (room) => socket.in(room).emit('stop typing'));
+
+    //socket for sending message
+    socket.on('send message', (newMsg) => {
+        //check which chat room the chat belongs to
+        var chat = newMsg.chat;
+
+        if (!chat.users) return console.log('Chat.users is not defined!');
+
+        //emit the message to all except the sender
+        chat.users.forEach(user => {
+            //sender
+            if (user._id == newMsg.sender._id) return;
+
+            socket.in(user._id).emit('message recieved', newMsg);
+        })
+    })
+
+    socket.off('setup', () => {
+        console.log("USER DISCONNECTED!");
+        socket.leave(userData._id);
+    })
+})

@@ -28,12 +28,12 @@ export const isLastMessage = (messages, idx_msg, userId) => {
 }
 
 export const isSameSenderMargin = (messages, cur_msg, idx_msg, userId) => {
-    if ((idx_msg < messages.length - 1) && (messages[idx_msg + 1].sender._id === cur_msg.sender._id) &&
+    if ((idx_msg < messages.length - 1 && messages[idx_msg + 1].sender._id === cur_msg.sender._id) &&
         (messages[idx_msg].sender._id !== userId)) return 33;
 
-    else if (((idx_msg < messages.length - 1) && (messages[idx_msg + 1].sender._id !== cur_msg.sender._id)) &&
-        ((messages[idx_msg].sender._id !== userId) ||
-            ((idx_msg === messages.length - 1) && messages[idx_msg].sender._id !== userId))) return 0;
+    else if ((idx_msg < messages.length - 1 && messages[idx_msg + 1].sender._id !== cur_msg.sender._id) &&
+        (messages[idx_msg].sender._id !== userId) ||
+        idx_msg === messages.length - 1 && messages[idx_msg].sender._id !== userId) return 0;
 
     else return "auto";
 };
